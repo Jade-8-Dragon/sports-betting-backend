@@ -19,7 +19,7 @@ def get_games():
 
     url = "https://api.collegefootballdata.com/games"
     headers = {"Authorization": f"Bearer {API_KEY}"}
-    params = {"year": 2023, "week": selected_week, "seasonType": "regular"}
+    params = {"year": 2025, "week": 7, "seasonType": "regular", "home": "Colorado"}
 
     response = requests.get(url, headers=headers, params=params)
     
