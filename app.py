@@ -14,9 +14,12 @@ def home():
 
 @app.route("/api/games")
 def get_games():
+
+    selected_week = request.args.get('week', default=1, type=int)
+
     url = "https://api.collegefootballdata.com/games"
     headers = {"Authorization": f"Bearer {API_KEY}"}
-    params = {"year": 2023, "week": 1, "seasonType": "regular"}
+    params = {"year": 2023, "week": selected_week, "seasonType": "regular"}
 
     response = requests.get(url, headers=headers, params=params)
     
