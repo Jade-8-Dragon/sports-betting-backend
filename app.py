@@ -42,7 +42,6 @@ def get_games():
     if home_team:
         params["home"] = home_team # 'homeTeam' from frontend becomes 'home' for the API
 
-    try:
         response = requests.get(url, headers=headers, params=params)
         
         # Check if the external API call failed
