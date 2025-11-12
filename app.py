@@ -15,19 +15,55 @@ def home():
 @app.route("/api/games")
 def get_games():
 
-    selected_week = request.args.get('week', default=1, type=int)
+    selected_year = request.args.get('year', default=2025, type=int)
+    selected_week = request.args.get('week', type=int)
+    home_team = request.args.get('home', type=str) # Mapped from 'homeTeam'
 
+    # These are for sorting/limiting *after* we get the data
+    limit = request.args.get('limit', type=int)
+    sort_by = request.args.get('sort', type=str) # e.g., 'gameDate'
+    order = request.args.get('order', default='desc', type=str) # 'asc' or 'desc'
+
+
+    # 2. Build the parameters for the external API call
     url = "https://api.collegefootballdata.com/games"
     headers = {"Authorization": f"Bearer {API_KEY}"}
-    params = {"year": 2025, "week": 7, "seasonType": "regular", "home": "Colorado"}
 
-    response = requests.get(url, headers=headers, params=params)
-    
-    # Add error handling (good practice)
-    if response.status_code != 200:
-        return jsonify({"error": "Failed to fetch data"}), response.status_code
+    # Start with required params
+    params = {
+        "year": selected_year,
+        "seasonType": "regular"
+    }
+
+    # Add optional params only if they were provided
+    if selected_week:
+        params["week"] = selected_week
         
-    return jsonify(response.json())
+    if home_team:
+        params["home"] = home_team # 'homeTeam' from frontend becomes 'home' for the API
+
+    try:
+        response = requests.get(url, headers=headers, params=params)
+        
+        # Check if the external API call failed
+        response.raise_for_status() 
+        
+        data = response.json()
+
+        # 3. Perform sorting (if requested)
+        # We sort the data here because the API doesn't do it for us.
+        if sort_by == 'gameDate' and data:
+            # Check if gameDate is available, default to empty string if not
+            is_desc = (order == 'desc')
+            data.sort(key=lambda game: game.get('start_date', ''), reverse=is_desc)
+
+        # 4. Perform limiting (if requested)
+        # We slice the list to get just the "N" items
+        if limit and data:
+            data = data[:limit] # Get the first N items (top N if sorted)
+
+        # 5. Return the final, processed data
+        return jsonify(data)
 
 # add other API call functions here:
 
