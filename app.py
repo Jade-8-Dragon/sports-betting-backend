@@ -1,8 +1,10 @@
 from flask import Flask, jsonify
+from flask_cors import CORS  # Import CORS
 import requests
 import os
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes on your app
 
 API_KEY = os.getenv("CFB_API_KEY")
 
@@ -17,7 +19,17 @@ def get_games():
     params = {"year": 2023, "week": 1, "seasonType": "regular"}
 
     response = requests.get(url, headers=headers, params=params)
+    
+    # Add error handling (good practice)
+    if response.status_code != 200:
+        return jsonify({"error": "Failed to fetch data"}), response.status_code
+        
     return jsonify(response.json())
+
+# add other API call functions here:
+
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
