@@ -42,27 +42,27 @@ def get_games():
     if home_team:
         params["home"] = home_team # 'homeTeam' from frontend becomes 'home' for the API
 
-        response = requests.get(url, headers=headers, params=params)
-        
-        # Check if the external API call failed
-        response.raise_for_status() 
-        
-        data = response.json()
+    response = requests.get(url, headers=headers, params=params)
+    
+    # Check if the external API call failed
+    response.raise_for_status() 
+    
+    data = response.json()
 
-        # 3. Perform sorting (if requested)
-        # We sort the data here because the API doesn't do it for us.
-        if sort_by == 'gameDate' and data:
-            # Check if gameDate is available, default to empty string if not
-            is_desc = (order == 'desc')
-            data.sort(key=lambda game: game.get('start_date', ''), reverse=is_desc)
+    # 3. Perform sorting (if requested)
+    # We sort the data here because the API doesn't do it for us.
+    if sort_by == 'gameDate' and data:
+        # Check if gameDate is available, default to empty string if not
+        is_desc = (order == 'desc')
+        data.sort(key=lambda game: game.get('start_date', ''), reverse=is_desc)
 
-        # 4. Perform limiting (if requested)
-        # We slice the list to get just the "N" items
-        if limit and data:
-            data = data[:limit] # Get the first N items (top N if sorted)
+    # 4. Perform limiting (if requested)
+    # We slice the list to get just the "N" items
+    if limit and data:
+        data = data[:limit] # Get the first N items (top N if sorted)
 
-        # 5. Return the final, processed data
-        return jsonify(data)
+    # 5. Return the final, processed data
+    return jsonify(data)
 
 # add other API call functions here:
 
